@@ -87,10 +87,7 @@ TEXT will be fontified according to `diff-mode' (i.e.
 `diff-font-lock-defaults')."
   (setq text (with-temp-buffer
                (insert text)
-               (delay-mode-hooks (diff-mode))
-               (font-lock-default-function #'diff-mode)
-               (font-lock-default-fontify-region
-                (point-min) (point-max) nil)
+               (fontify-patch-buffer)
                (buffer-string)))
   (let ((pos 0)
         (next))
