@@ -36,6 +36,7 @@
 
 (require 'diff-mode)
 (require 'font-lock)
+(require 'message)
 
 (defun fontify-patch--beginning-of-patch ()
   "Beginning of diff in patch."
@@ -65,6 +66,14 @@ Buffer will be fontified according to `diff-mode' (i.e.
         (while (/= end old-end)
           (setq old-end end)
           (setq end (fontify-patch--end-of-patch)))
+        ;; If this is a patch with a mail signature (e.g. obtained with `git
+        ;; format-patch`), we don't want to interpret the signature delimiter
+        ;; "-- \n" as a deleted-line diff. There is of course a possibility that
+        ;; the diff do contain a deleted "- \n" line, but a signature delimiter
+        ;; is probably more common (since `--signature` is default for `git
+        ;; format-patch`).
+        (when (re-search-backward message-signature-separator beg t)
+          (setq end (point)))
         (setq-local font-lock-defaults diff-font-lock-defaults)
         (unwind-protect
             (font-lock-fontify-region beg end nil)
